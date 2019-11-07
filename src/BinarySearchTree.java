@@ -75,6 +75,7 @@ public class BinarySearchTree<AnyType extends Comparable<? super AnyType>>
 
     private String printTree( BinaryNode<AnyType> t , int depth)
     {
+        //prints the tree in a relatively legible way...
         if( t == null) { return ""; }
         if((t.left==null && t.right==null))
             return ""+t.element;
@@ -193,34 +194,38 @@ public class BinarySearchTree<AnyType extends Comparable<? super AnyType>>
 
     }
 
-    public int nodeCount(){ //helper method
+    public int nodeCount(){
         return nodeCount(this.root);
     }
 
     private int nodeCount(BinaryNode<AnyType> node){
+        //returns the amount of nodes
         if(node==null)
             return 0;
         return 1+nodeCount(node.right)+nodeCount(node.left);
     }
 
     public void isFull(){
-        //helper method
         if(isFull(this.root))
-            System.out.println("Tree 1 is full");
+            System.out.println("The tree is full");
         else
-            System.out.println("Tree 1 is NOT full");
+            System.out.println("The tree is NOT full");
     }
 
     private boolean isFull(BinaryNode<AnyType> node){
-        if((node.left == null && node.right!=null) || (node.right == null && node.left!=null))
+        if((node.left==null) != (node.right==null))
+            //if their nullness differs, then there is a leaf without a sibling
+            //(node.left == null && node.right!=null) || (node.right == null && node.left!=null)
             return false;
         if(node.left == null)
+            //if left is null in this case right must be null
+            //if both children are null then the node is full
             return true;
+        //check the children
         return isFull(node.left) && isFull(node.right);
     }
 
     public void compareStructure(BinarySearchTree<AnyType> that){
-        //helper method
         if(compareStructure(this.root,that.root))
             System.out.println("The trees' structures are the same");
         else
@@ -229,15 +234,18 @@ public class BinarySearchTree<AnyType extends Comparable<? super AnyType>>
 
     private boolean compareStructure(BinaryNode<AnyType> a, BinaryNode<AnyType> b){
         if((a == null) == (b==null)){
+            //if a and b are both either null or not null;
+            //((a==null && b==null) || (a!=null && b!=null))
             if(a!=null)
+                //if a isn't null, then b must be non-null so check the children
                 return compareStructure(a.left,b.left) && compareStructure(a.right,b.right);
+            //regardless, a and b share the same "structure"
             return true;
         }
         return false;
     }
 
     public void equals(BinarySearchTree<AnyType> that){
-        //helper method
         if(equals(this.root,that.root))
             System.out.println("The trees are identical");
         else
@@ -245,12 +253,18 @@ public class BinarySearchTree<AnyType extends Comparable<? super AnyType>>
     }
 
     private boolean equals(BinaryNode<AnyType> a, BinaryNode<AnyType> b){
+        //similar logic to compareStructure except implement a check for values
         if((a==null) == (b==null)) {
             if(a==null)
+                //if a is null then b is null therefore they have the same value
                 return true;
             if((a.element).equals(b.element))
+                //if their values are equal
+                //make sure their children are also equal
                 return equals(a.left,b.left) && equals(a.right,b.right);
         }
+        //if their nullness is not the same
+        //or their values differ
         return false;
     }
 
@@ -261,10 +275,15 @@ public class BinarySearchTree<AnyType extends Comparable<? super AnyType>>
     private BinaryNode<AnyType> copy(BinaryNode<AnyType> node){
         if(node == null)
             return null;
+        //for every single node, copy the element
+        //and set its left and right children
+        //to copies of those nodes
         return new BinaryNode<>(node.element, copy(node.left), copy(node.right));
     }
 
     public BinarySearchTree<AnyType> mirror(){
+        //return a copy of the tree that is truly mirrored
+        //this breaks BST properties, so yeah
         BinarySearchTree<AnyType> newTree = this.copy();
         mirror(newTree.root);
         return newTree;
@@ -273,18 +292,20 @@ public class BinarySearchTree<AnyType extends Comparable<? super AnyType>>
     private void mirror(BinaryNode<AnyType> node){
         if(node==null)
             return;
+        //swap the children
         BinaryNode<AnyType> temp = node.left;
         node.setLeft(node.right);
         node.setRight(temp);
         if((node.left==null)&&(node.right==null)) {
+            //if its a leaf, stop
             return;
         }
+        //otherwise mirror their children
         mirror(node.left);
         mirror(node.right);
     }
 
     public void isMirror(BinarySearchTree<AnyType> that){
-        //helper method
         if(isMirror(this.root,that.root))
             System.out.println("The trees are mirrors of each other");
         else
@@ -292,20 +313,30 @@ public class BinarySearchTree<AnyType extends Comparable<? super AnyType>>
     }
 
     private boolean isMirror(BinaryNode<AnyType> a, BinaryNode<AnyType> b){
+        //similar logic to equals except
+        //you have to flip the direction you're checking in (see below comments)
         if((a==null) == (b==null)) {
             if(a==null)
                 return true;
             if((a.element).equals(b.element))
+                //otherwise if they have a value
+                //if the value is correct then they must be a mirror,
+                //so check a's left child with b's right
+                //and a's right with b's left
                 return (isMirror(a.left,b.right) && isMirror(a.right,b.left));
         }
+        //if the nullness isn't the same
+        //or the values of the flanking children differ
         return false;
     }
 
     public void rotateRight(AnyType T){
+        //if we want to rotate the root or its left child to the right
+        //the result is the same
         if(root.element.equals(T) || root.left.element.equals(T)){
+            //this method only works if you want to rotate either of those
+            //two nodes
             BinarySearchTree<AnyType> newTree = new BinarySearchTree<>();
-            //if we want to rotate the root or its left child to the right
-            //the result is the same
             BinaryNode<AnyType> tempRoot = new BinaryNode<>(root.element);
             BinaryNode<AnyType> tempRootRight = root.right;
             tempRoot.setRight(tempRootRight);
@@ -323,10 +354,12 @@ public class BinarySearchTree<AnyType extends Comparable<? super AnyType>>
     }
 
     public void rotateLeft(AnyType T){
+        //if we want to rotate the root or its right child to the left
+        //the result is the same
         if(root.element.equals(T) || root.right.element.equals(T)){
+            //this method only works if you want to rotate either of those
+            //two nodes
             BinarySearchTree<AnyType> newTree = new BinarySearchTree<>();
-            //if we want to rotate the root or its left child to the right
-            //the result is the same
             BinaryNode<AnyType> tempRoot = new BinaryNode<>(root.element);
             BinaryNode<AnyType> tempRootLeft = root.left;
             tempRoot.setRight(tempRootLeft);
@@ -344,6 +377,7 @@ public class BinarySearchTree<AnyType extends Comparable<? super AnyType>>
     }
 
     public void printLevels() {
+        //prints each level of the tree
         int h = this.height(this.root);
         System.out.println(root.element);
         for (int i=1; i<=h; i++) {
@@ -409,8 +443,6 @@ public class BinarySearchTree<AnyType extends Comparable<? super AnyType>>
         tree1.rotateRight(10);
         tree1.printTree();
         tree1.rotateLeft(10);
-        tree1.printTree();
-        tree1.rotateRight(14);
         tree1.printTree();
 
         System.out.println("Printing the tree using printLevels():");
